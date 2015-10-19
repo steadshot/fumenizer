@@ -28,12 +28,13 @@ for row in range(20):
 		part = field[y1:y2, x1:x2]
 
 		thresh = cv2.cvtColor(part, cv2.COLOR_BGR2GRAY)
-		ret, thresh = cv2.threshold(thresh, 10, 255, cv2.THRESH_BINARY)
+		ret, thresh = cv2.threshold(thresh, 20, 255, cv2.THRESH_BINARY)
 		#sometimes a little tinkering with the 2nd parameter (aka the threshold value) 
-		#of threshold is required (e.g. going up to 20 or higher)
+		#of threshold is required (e.g. going higher than 20)
 		#todo: make threshold an argument
 		temp_height, temp_width = thresh.shape[:2]
-		# blocks will now be predominantly white squares, so we're doing a count
+		#blocks will now be predominantly white squares, so we're counting 
+		#black and white pixels
 		black = 0
 		white = 0
 		for i in range(temp_height):
