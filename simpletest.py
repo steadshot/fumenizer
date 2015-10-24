@@ -13,13 +13,13 @@ class TestBuildMatrix(unittest.TestCase):
 		with open(dataFile, 'r') as f:
 			expectedMatrix = json.load(f)
 
-		self.assertEqual(self.compareMatrices(matrix, expectedMatrix), 0)
+		self.assertTrue(self.compareMatrices(matrix, expectedMatrix))
 
 	def compareMatrices(self, matrix, expected):
-		zipped = zip(matrix, expected)
-		for row in zipped:
-		    count = functools.reduce(lambda x, y: x != y, row)
-		return count
+		for row in zip(matrix, expected):
+			if sum(x - y for x, y in zip(row[0], row[1])) > 0:
+				return False
+		return True
 
 	def test_empty(self):
 		self.compareImageToFile('tetris1.png', 'test/tetris1.json')
