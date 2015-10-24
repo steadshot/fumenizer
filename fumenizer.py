@@ -6,6 +6,8 @@ import pyperclip
 
 import fumen
 
+import json
+
 import sys
 import os
 import argparse
@@ -13,37 +15,6 @@ try:
 	import configparser
 except ImportError:
 	import ConfigParser as configparser
-
-os.chdir(os.path.dirname(os.path.abspath(sys.argv[0])))
-
-# Create default settings file
-if not os.path.isfile('fumenizer.ini'):
-	f = open("fumenizer.ini", "w")
-	f.write("[settings]\n")
-	f.write("#for TGM a threshold around 20 is recommended\n")
-	f.write("threshold=20\n")
-	f.write("preview=1\n")
-	f.write("tgm1=0\n")
-	f.close()
-
-# Read our config file with a set of defaults.
-config = configparser.ConfigParser()
-config['settings'] = {'threshold' : 20,
-		      'preview'   : True,
-		      'tgm1'      : False}
-config.read('fumenizer.ini')
-
-# Parse our command line arguments. These will take precedence over config file settings.
-argParser = argparse.ArgumentParser(description="Fumenizer Settings")
-argParser.add_argument('imageFile', help='Fumenize this image')
-argParser.add_argument('-t', dest='threshold', action='store',
-		       type=float, default=float(config['settings']['threshold']),
-		       help='Threshold tolerance')
-argParser.add_argument('-p', dest='preview', action='store_true',
-		       help='Show preview')
-argParser.add_argument('-1', dest='tgm1', action='store_true',
-		       help='TGM1 Compatibility')
-args = argParser.parse_args()
 
 def buildMatrix(imgFilename, threshold, tgm1):
 	# image needs to be the exact playfield without the border
@@ -126,6 +97,10 @@ def buildMatrix(imgFilename, threshold, tgm1):
 			break
 	return matrix
 
+def exportMatrix(matrix, filename):
+	with open(filename, 'w') as f:
+		json.dump(matrix, f)
+
 def fumenize(matrix, showPreview):
 	#prepare result image
 	blank = np.zeros((200, 100, 3), np.uint8)
@@ -154,5 +129,37 @@ def fumenize(matrix, showPreview):
 		cv2.waitKey()
 		cv2.destroyAllWindows()
 
-matrix = buildMatrix(args.imageFile, args.threshold, args.tgm1)
-fumenize(matrix, args.preview)
+if __name__ == '__main__':
+	os.chdir(os.path.dirname(os.path.abspath(sys.argv[0])))
+
+	# Create default settings file
+	if not os.path.isfile('fumenizer.ini'):
+		f = open("fumenizer.ini", "w")
+		f.write("[settings]\n")
+		f.write("#for TGM a threshold around 20 is recommended\n")
+		f.write("threshold=20\n")
+		f.write("preview=1\n")
+		f.write("tgm1=0\n")
+		f.close()
+
+	# Read our config file with a set of defaults.
+	config = configparser.ConfigParser()
+	config['settings'] = {'threshold' : 20,
+			    'preview'   : True,
+			    'tgm1'      : False}
+	config.read('fumenizer.ini')
+
+	# Parse our command line arguments. These will take precedence over config file settings.
+	argParser = argparse.ArgumentParser(description="Fumenizer Settings")
+	argParser.add_argument('imageFile', help='Fumenize this image')
+	argParser.add_argument('-t', dest='threshold', action='store',
+			       type=float, default=float(config['settings']['threshold']),
+			       help='Threshold tolerance')
+	argParser.add_argument('-p', dest='preview', action='store_true',
+			       help='Show preview')
+	argParser.add_argument('-1', dest='tgm1', action='store_true',
+			       help='TGM1 Compatibility')
+	args = argParser.parse_args()
+
+	matrix = buildMatrix(args.imageFile, args.threshold, args.tgm1)
+	fumenize(matrix, args.preview)
