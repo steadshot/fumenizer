@@ -167,7 +167,7 @@ if __name__ == '__main__':
 					i += 1
 			#f.field = clearlines(f.field)
 			framenum += 1
-			print realframe, framenum
+			print(realframe, framenum)
 			frames.append(f)
 			count -= 1
 
@@ -177,5 +177,5 @@ if __name__ == '__main__':
 			break
 
 	url = make(frames, 0)
-	print url
+	print(url)
 	pyperclip.copy(url)
