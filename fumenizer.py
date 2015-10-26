@@ -161,5 +161,5 @@ if __name__ == '__main__':
 			       help='TGM1 Compatibility')
 	args = argParser.parse_args()
 
-	matrix = buildMatrix(args.imageFile, args.threshold, args.tgm1)
-	fumenize(matrix, args.preview)
+	matrix = buildMatrix(args.imageFile, args.threshold, args.tgm1 or config.getboolean('settings', 'tgm1'))
+	fumenize(matrix, args.preview or config.getboolean('settings', 'preview'))
