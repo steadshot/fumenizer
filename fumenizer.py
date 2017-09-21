@@ -52,10 +52,10 @@ def buildMatrix(imgFilename, threshold, tgm1):
 	for row in range(20):
 		line = []
 		for col in range(10):
-			y1 = round(height - (row + 1) * block_height)
-			y2 = round(height - row * block_height)
-			x1 = round(col * block_width)
-			x2 = round((col + 1) * block_width)
+			y1 = int(round(height - (row + 1) * block_height))
+			y2 = int(round(height - row * block_height))
+			x1 = int(round(col * block_width))
+			x2 = int(round((col + 1) * block_width))
 			part = field[y1:y2, x1:x2]
 
 			thresh = cv2.cvtColor(part, cv2.COLOR_BGR2GRAY)
@@ -123,6 +123,18 @@ def fumenize(matrix, showPreview):
 	print(fumen_url)
 	pyperclip.copy(fumen_url)
 
+	with open("last_field", 'w') as f:
+		f.write("############\n")
+		for row in range(20):
+			f.write('#')
+			for col in range(10):
+				if matrix[19-row][col]:
+					f.write('|')
+				else:
+					f.write(' ')
+			f.write('#\n')
+		f.write("############\n")
+
 	if showPreview:
 		#show result image
 		cv2.imshow('d', blank)
@@ -144,16 +156,18 @@ if __name__ == '__main__':
 
 	# Read our config file with a set of defaults.
 	config = configparser.ConfigParser()
-	config['settings'] = {'threshold' : 20,
-			    'preview'   : True,
-			    'tgm1'      : False}
+	#config['settings'] = {'threshold' : 20, 'preview'   : True, 'tgm1'      : False}
+	config.add_section("settings")
+	config.set("settings", "threshold", "20")
+	config.set("settings", "preview", "True")
+	config.set("settings", "tgm1", "False")
 	config.read('fumenizer.ini')
 
 	# Parse our command line arguments. These will take precedence over config file settings.
 	argParser = argparse.ArgumentParser(description="Fumenizer Settings")
 	argParser.add_argument('imageFile', help='Fumenize this image')
 	argParser.add_argument('-t', dest='threshold', action='store',
-			       type=float, default=float(config['settings']['threshold']),
+			       type=float, default=float(config.get("settings", "threshold")),
 			       help='Threshold tolerance')
 	argParser.add_argument('-p', dest='preview', action='store_true',
 			       help='Show preview')
